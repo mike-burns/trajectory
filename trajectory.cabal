@@ -48,10 +48,10 @@ Executable inittj
   Main-is:             InitTj.hs
   
   -- Packages needed in order to build this package.
-  Build-depends:       haskell2010
-                     , regexpr
-                     , data-object-json
-                     , data-object
+  Build-depends:      base
+                     ,regexpr
+                     ,data-object-json
+                     ,data-object
   
   -- Modules not exported by this package.
   -- Other-modules:       
@@ -59,3 +59,21 @@ Executable inittj
   -- Extra tools (e.g. alex, hsc2hs, ...) needed to build the source.
   -- Build-tools:         
   
+Executable findstory
+  -- .hs or .lhs file containing the Main module.
+  Main-is:             FindStory.hs
+  
+  -- Packages needed in order to build this package.
+  Build-depends:      base
+                     ,uri
+                     ,http-enumerator
+                     ,bytestring
+                     ,aeson
+                     ,attoparsec
+                     ,http-types
+  
+  -- Modules not exported by this package.
+  -- Other-modules:       
+  
+  -- Extra tools (e.g. alex, hsc2hs, ...) needed to build the source.
+  -- Build-tools:         

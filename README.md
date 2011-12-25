@@ -14,9 +14,10 @@ Synopsis
     % findstory --next
     % findstory --unstarted
     % findstory --unestimated
-    % findstory --unstarted --next --unassigned
+    % findstory --unstarted --next --unassigned --incomplete
     % findstory --within-milestone "Fully Backboned"
     % findstory --profile thoughtbot-support --project "Trajectory"
+    % findstory --completed
     % findidea
     % lsmilestone
     % lsmilestone --unstarted --next
