@@ -32,14 +32,6 @@ mkConfig map args =
   where
     profileName = fromMaybe "default" $ args `elementAfter` "--profile"
 
-    elementAfter [] _ = Nothing
-    elementAfter (x:xs) match
-      | x == match = nextElement xs
-      | otherwise = elementAfter xs match
-        where
-          nextElement [] = Nothing
-          nextElement (result:_) = Just result
-
 getConfig args = do
   configFileName <- getConfigFileName
   jsonString <- BS.readFile configFileName
@@ -58,3 +50,13 @@ getConfigFileName = do
   where
     withHomeDir homeDir   = homeDir ++ "/.trajectory"
     withUserName userName = "/usr/"++userName++"/.trajectory"
+
+-- this is pretty generic:
+
+elementAfter [] _ = Nothing
+elementAfter (x:xs) match
+  | x == match = nextElement xs
+  | otherwise = elementAfter xs match
+    where
+      nextElement [] = Nothing
+      nextElement (result:_) = Just result

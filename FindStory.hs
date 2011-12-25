@@ -28,8 +28,10 @@ main = do
   potentiallyAllStories <- (getAllStories config) :: IO (Either Error Stories)
   case potentiallyAllStories of
     (Left error) -> print error
-    (Right allStories) ->
-      putStrLn $ intercalate "\n\n" $ map formatStory $ getStories allStories
+    (Right allStories) -> do
+      let idea = ideaLimitationFrom specificArgs
+          stories = filterByIdea idea $ getStories allStories
+      putStrLn $ intercalate "\n\n" $ map formatStory stories
 
 formatStory story =
   title ++ "\n"
@@ -51,6 +53,12 @@ formatStory story =
 allStoriesUrl config = do
   let key = getConfigKey config
   return $ "https://www.apptrajectory.com/api/" ++ key ++ "/accounts/923bc9b85eaa4a9213c5/projects/activeblueleaf/stories.json"
+
+ideaLimitationFrom args = args `elementAfter` "--idea"
+
+filterByIdea Nothing stories = stories
+filterByIdea (Just ideaSubject) stories =
+  filter (maybe False (ideaSubject ==) . storyIdeaSubject) stories
 
 
 deriving instance Eq Network.HTTP.Enumerator.HttpException
