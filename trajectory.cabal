@@ -50,8 +50,10 @@ Executable inittj
   -- Packages needed in order to build this package.
   Build-depends:      base
                      ,regexpr
-                     ,data-object-json
-                     ,data-object
+                     ,aeson
+                     ,bytestring
+                     ,text
+                     ,containers
   
   -- Modules not exported by this package.
   -- Other-modules:       
@@ -71,6 +73,8 @@ Executable findstory
                      ,aeson
                      ,attoparsec
                      ,http-types
+                     ,text
+                     ,containers
   
   -- Modules not exported by this package.
   -- Other-modules:       

@@ -18,9 +18,10 @@ import Data.Attoparsec
 import Control.Applicative
 import Data.Data
 
-import System.Environment (getEnv)
 import qualified Data.Text
 import qualified Data.Map
+
+import Trajectory.Private
 
 main = do
   potentiallyAllStories <- getAllStories :: IO (Either Error Stories)
@@ -47,26 +48,11 @@ formatStory story =
 
 
 allStoriesUrl = do
-  configFileName <- getConfigFileName
-  jsonString <- BS.readFile configFileName
-  let (Done _ config) = parse json jsonString
-      (Object mapping) = config
-      (String keyText) = fromJust $ Data.Map.lookup (Data.Text.pack "default") mapping
+  config <- getConfig
+  let (String keyText) = fromJust $ Data.Map.lookup (Data.Text.pack "default") config
       key = Data.Text.unpack keyText
   return $ "https://www.apptrajectory.com/api/" ++ key ++ "/accounts/923bc9b85eaa4a9213c5/projects/activeblueleaf/stories.json"
 
-
-getConfigFileName = do
-  getEnv "TRAJECTORY_CONFIG_FILE"
-   `catch`
-   (const (getEnv "HOME" >>= return . withHomeDir))
-   `catch`
-   (const (getEnv "USER" >>= return . withUserName))
-   `catch`
-   (const (return "/.trajectory"))
-  where
-    withHomeDir homeDir   = homeDir ++ "/.trajectory"
-    withUserName userName = "/usr/"++userName++"/.trajectory"
 
 deriving instance Eq Network.HTTP.Enumerator.HttpException
 data Error =

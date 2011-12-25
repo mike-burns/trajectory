@@ -1,11 +1,16 @@
 module Main where
 
 import Text.RegexPR (matchRegexPR)
-import System.Environment (getArgs, getEnv)
+import System.Environment (getArgs)
 import Data.Maybe (isJust, fromMaybe)
 import System.IO (hFlush, stdout)
-import Data.Object.Json (encodeFile, decodeFile)
-import Data.Object (Object(..))
+
+-- this is all used for writeKey:
+import Trajectory.Private
+import qualified Data.Map as M
+import qualified Data.Text as T
+import qualified Data.ByteString.Lazy as BS
+import Data.Aeson (encode, toJSON, Value(..))
 
 main = do
   args <- getArgs
@@ -20,34 +25,14 @@ getProfileNameFrom args =
 
 getKey = promptWhile isBlank "API key: " 
 
-getConfigFileName = do
-  getEnv "TRAJECTORY_CONFIG_FILE"
-   `catch`
-   (const (getEnv "HOME" >>= return . withHomeDir))
-   `catch`
-   (const (getEnv "USER" >>= return . withUserName))
-   `catch`
-   (const (return "/.trajectory"))
-  where
-    withHomeDir homeDir   = homeDir ++ "/.trajectory"
-    withUserName userName = "/usr/"++userName++"/.trajectory"
-
 writeKey configFileName profileName key = do
-  priorConfig <- decodeFile configFileName
-  let profileYaml = Mapping [(profileName, Scalar key)]
-  let yaml = case priorConfig of
-               Nothing -> profileYaml
-               Just object -> mergeObject object profileYaml
-  encodeFile configFileName yaml
+  configFileName <- getConfigFileName
+  priorConfig <- getConfig
+  let config = M.insert (T.pack profileName) (String $ T.pack key) priorConfig
+      json = toJSON config
+  BS.writeFile configFileName $ encode json
 
 -- generally useful functions below; maybe they exist elsewhere:
-
-mergeObject (Mapping m1) (Mapping m2) = Mapping (m2 ++ m1)
-mergeObject (Sequence s1) (Sequence s2) = Sequence (s1 ++ s2)
-mergeObject (Sequence s) o2@(Scalar v) = Sequence (s ++ [o2])
-mergeObject o1@(Scalar v) (Sequence s) = Sequence (o1:s)
-mergeObject o1@(Scalar v1) o2@(Scalar v2) = Sequence [o1,o2]
-mergeObject o1 o2 = Sequence [o1,o2]
 
 elementAfter [] _ = Nothing
 elementAfter (x:xs) match
