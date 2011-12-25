@@ -2,6 +2,8 @@
 
 module Main where
 
+import System.Environment (getArgs)
+
 import Data.List (intercalate)
 import Data.Maybe (fromMaybe, fromJust)
 
@@ -18,13 +20,12 @@ import Data.Attoparsec
 import Control.Applicative
 import Data.Data
 
-import qualified Data.Text
-import qualified Data.Map
-
 import Trajectory.Private
 
 main = do
-  potentiallyAllStories <- getAllStories :: IO (Either Error Stories)
+  args <- getArgs
+  (config, specificArgs) <- getConfig args
+  potentiallyAllStories <- (getAllStories config) :: IO (Either Error Stories)
   case potentiallyAllStories of
     (Left error) -> print error
     (Right allStories) ->
@@ -47,10 +48,8 @@ formatStory story =
       ]
 
 
-allStoriesUrl = do
-  config <- getConfig
-  let (String keyText) = fromJust $ Data.Map.lookup (Data.Text.pack "default") config
-      key = Data.Text.unpack keyText
+allStoriesUrl config = do
+  let key = getConfigKey config
   return $ "https://www.apptrajectory.com/api/" ++ key ++ "/accounts/923bc9b85eaa4a9213c5/projects/activeblueleaf/stories.json"
 
 
@@ -121,9 +120,9 @@ instance FromJSON Stories where
     Stories <$> o .: "stories"
   parseJSON _          = fail "Could not build Stories"
 
-getAllStories :: (FromJSON b, Show b) => IO (Either Error b)
-getAllStories = do
-  url <- allStoriesUrl
+getAllStories :: (FromJSON b, Show b) => Config -> IO (Either Error b)
+getAllStories config = do
+  url <- allStoriesUrl config
   let method = BS.pack "GET"
       body = Nothing :: Maybe String
       (Just uri)  = parseURI url
@@ -149,10 +148,10 @@ getAllStories = do
 
 parseJson :: (FromJSON b, Show b) => BS.ByteString -> Either Error b
 parseJson jsonString =
-  let parsed = parse (fromJSON <$> json) jsonString in
-  case parsed of
-       Data.Attoparsec.Done _ jsonResult -> do
-         case jsonResult of
-              (Success s) -> Right s
-              (Error e) -> Left $ JsonError $ e ++ " on the JSON: " ++ BS.unpack jsonString
-       (Fail _ _ e) -> Left $ ParseError e
+  handle $ parse (fromJSON <$> json) jsonString
+  where
+    handle (Data.Attoparsec.Done _ (Success s)) = Right s
+    handle (Data.Attoparsec.Done _ (Error e)) =
+      Left $ JsonError $ e ++ " on the JSON: " ++ BS.unpack jsonString
+    handle (Fail _ _ e) = Left $ ParseError e
+    handle (Partial k) = handle $ k ""
