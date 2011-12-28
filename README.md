@@ -6,19 +6,28 @@ Tools and a library.
 Synopsis
 ========
 
+Done:
+
     % inittj
     % inittj --profile thoughtbot-support
 
-    % findstory
-    % findstory --idea "Spam is out of control"
-    % findstory --next
-    % findstory --unstarted
-    % findstory --unestimated
-    % findstory --unstarted --next --unassigned --incomplete
-    % findstory --within-milestone "Fully Backboned"
-    % findstory --profile thoughtbot-support --project "Trajectory"
-    % findstory --completed
-    % findidea
+    % lsstory
+    % lsstory --idea "Spam is out of control"
+    % lsstory --next
+    % lsstory --unstarted
+    % lsstory --unestimated
+    % lsstory --unstarted --next --unassigned --incomplete
+    % lsstory --within-milestone "Fully Backboned"
+    % lsstory --profile thoughtbot-support --project "Trajectory"
+    % lsstory --completed
+
+To do:
+
+    % lsstory --development
+    % lsstory --design
+    % lsstory --design --development
+
+    % lsidea
     % lsmilestone
     % lsmilestone --unstarted --next
 
