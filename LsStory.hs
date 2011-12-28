@@ -9,16 +9,20 @@ import Data.Maybe (fromMaybe, isNothing)
 import Control.Applicative( (<*>) )
 import Data.Monoid (mconcat)
 
+import Trajectory.Private.Config (withKey)
+
 main = do
   args <- cmdArgs lsStoryArgDefinition
-  key <- getKey $ profileName args
-  stories <- getStories key (accountName args) (projectName args)
-
-  putStrLn $ handle stories args
+  withKey (profileName args) $ \key -> do
+      stories <- getStories key (accountName args) (projectName args)
+      putStrLn $ either (\error -> "Error: " ++ show error)
+                        (handle args)
+                        stories
 
 -- TODO:
-getKey profileName = return "bc510c80a9077bde54cee1034bc37d09"
-getStories key accountName projectName = return [story1, story2, story4, story3]
+getStories :: String -> String -> String -> IO (Either String [Story])
+getStories key accountName projectName =
+  return $ Right [story1, story2, story4, story3]
   where
     story1 = Story
                False
@@ -141,8 +145,8 @@ data Story = Story {
   ,storyIdeaSubject :: Maybe String
 } deriving (Show, Eq, Typeable, Data)
 
-handle :: [Story] -> LsStoryArg -> String
-handle stories args =
+handle :: LsStoryArg -> [Story] -> String
+handle args stories =
   let filters = buildFilters args
       renderer = buildRenderer args in
     renderer $ filters `pipe` stories
@@ -152,14 +156,18 @@ handle stories args =
 
 buildRenderer args [] = ""
 buildRenderer args stories
+  | onlyNext args && null nonMilestones = ""
   | detailedOutput args && onlyNext args =
-    head $ map detailedFormatter stories
+    head $ map detailedFormatter nonMilestones
   | detailedOutput args =
     intercalate "\n\n" $ map detailedFormatter stories
   | onlyNext args =
-    head $ map simpleFormatter stories
+    head $ map simpleFormatter nonMilestones
   | otherwise =
     intercalate "\n" $ map simpleFormatter stories
+    where
+      nonMilestones = skipMilestones stories
+      skipMilestones = filter $ ("Milestone" /=) . storyTaskType
 
 detailedFormatter story =
   title ++ "\n" ++ origins ++ "\n" ++ overall
@@ -210,7 +218,7 @@ beforeMilestoneFilter args
     where
       (Just milestoneTitle) = beforeMilestone args
       notTheMilestone story =
-        (storyTaskType story /= "milestone") &&
+        (storyTaskType story /= "Milestone") &&
           (storyTitle story /= milestoneTitle)
 
 estimationFilter args
