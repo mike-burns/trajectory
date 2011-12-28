@@ -21,7 +21,8 @@ import Data.Maybe (fromMaybe)
 
 import Trajectory.Types
 
-data Stories = Stories [Story] deriving (Show, Eq, Typeable, Data)
+data Stories = Stories [Story] [Iteration]
+  deriving (Show, Eq, Typeable, Data)
 
 instance FromJSON Story where
   parseJSON (Object o) =
@@ -49,12 +50,33 @@ instance FromJSON Story where
           <*> o .:? "idea_subject"
   parseJSON _          = fail "Could not build a Story"
 
+instance FromJSON Iteration where
+  parseJSON (Object o) =
+    Iteration <$> o .: "accepted_points"
+              <*> o .: "complete"
+              <*> o .: "created_at"
+              <*> o .: "estimated_points"
+              <*> o .: "estimated_velocity"
+              <*> o .: "id"
+              <*> o .: "starts_on"
+              <*> o .: "stories_count"
+              <*> o .: "team_strength"
+              <*> o .: "updated_at"
+              <*> o .: "percent_complete"
+              <*> o .: "current?"
+              <*> o .: "unstarted_stories_count"
+              <*> o .: "accepted_stories_count"
+              <*> o .: "started_stories_count"
+              <*> o .: "delivered_stories_count"
+              <*> o .: "comments_count"
+  parseJSON _ = fail "Could not build an Iteration"
+
 instance FromJSON Stories where
   parseJSON (Object o) =
-    Stories <$> o .: "stories"
+    Stories <$> o .: "stories" <*> o .: "iterations"
   parseJSON _          = fail "Could not build Stories"
 
-getStories :: String -> String -> String -> IO (Either Error [Story])
+getStories :: String -> String -> String -> IO (Either Error ([Story], [Iteration]))
 getStories key accountName projectName = do
   let url = buildUrl [key, "accounts", accountName, "projects", projectName, "stories.json"]
   result <- doHttps (BS.pack "GET") url Nothing
@@ -62,9 +84,9 @@ getStories key accountName projectName = do
                   (extractStories . parseJson . responseBody)
                   result
   where
-    extractStories :: (Either Error Stories) -> (Either Error [Story])
+    extractStories :: (Either Error Stories) -> (Either Error ([Story],[Iteration]))
     extractStories (Left l) = Left l
-    extractStories (Right (Stories ss)) = Right ss
+    extractStories (Right (Stories stories iterations)) = Right (stories, iterations)
 
 
 buildUrl :: [String] -> String

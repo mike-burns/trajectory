@@ -37,3 +37,23 @@ data Story = Story {
   ,storyStateEvents :: [String]
   ,storyIdeaSubject :: Maybe String
 } deriving (Show, Eq, Typeable, Data)
+
+data Iteration = Iteration {
+   iterationAcceptedPoints :: Int
+  ,iterationIsComplete :: Bool
+  ,iterationCreatedAt :: String
+  ,iterationEstimatedPoints :: Int
+  ,iterationEstimatedVelocity :: Int
+  ,iterationId :: Int
+  ,iterationStartsOn :: String
+  ,iterationStoriesCount :: Int
+  ,iterationTeamStrength :: Int
+  ,iterationUpdatedAt :: String
+  ,iterationPercentComplete :: Int
+  ,iterationIsCurrent :: Bool
+  ,iterationUnstartedStoriesCount :: Int
+  ,iterationAcceptedStoriesCount :: Int
+  ,iterationStartedStoriesCount :: Int
+  ,iterationDeliveredStoriesCount :: Int
+  ,iterationCommentsCount :: Int
+} deriving (Show, Eq, Typeable, Data)

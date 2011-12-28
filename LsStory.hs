@@ -10,7 +10,7 @@ import Control.Applicative( (<*>) )
 import Data.Monoid (mconcat)
 
 import Trajectory.Private.Config (withKey)
-import Trajectory.Private.API (getStories, Story(..))
+import Trajectory.Private.API (getStories, Story(..), Iteration(..))
 
 main = do
   args <- cmdArgs lsStoryArgDefinition
@@ -20,9 +20,9 @@ main = do
                         (handle args)
                         stories
 
-handle :: LsStoryArg -> [Story] -> String
-handle args stories =
-  let filters = buildFilters args
+handle :: LsStoryArg -> ([Story],[Iteration]) -> String
+handle args (stories,iterations) =
+  let filters = buildFilters args iterations
       renderer = buildRenderer args in
     renderer $ filters `pipe` stories
   where
@@ -64,8 +64,8 @@ milestonePrefix story
   | storyTaskType story == "Milestone" = "^^^ "
   | otherwise = ""
 
-buildFilters :: LsStoryArg -> [ [Story] -> [Story] ]
-buildFilters args = filters <*> [args]
+buildFilters :: LsStoryArg -> [Iteration] -> [ [Story] -> [Story] ]
+buildFilters args iterations = filters <*> [args]
   where filters = [
           ideaFilter
           ,beforeMilestoneFilter
@@ -73,6 +73,7 @@ buildFilters args = filters <*> [args]
           ,assignmentFilter
           ,stateFilter
           ,neededFilter
+          ,iterationFilter iterations
           ,deletionsFilter
           ]
 
@@ -141,6 +142,12 @@ neededFilter args
   | showDesignNeeded args = filter storyDesignNeeded
   | showDevelopmentNeeded args = filter storyDevelopmentNeeded
   | otherwise = id
+
+iterationFilter iterations args =
+  filter ((currentIterationId ==) . storyIterationId)
+  where
+    currentIteration = head $ filter iterationIsCurrent iterations
+    currentIterationId = iterationId currentIteration
 
 deletionsFilter args = filter (not . storyDeleted)
 
