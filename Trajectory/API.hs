@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveDataTypeable, OverloadedStrings #-}
 
-module Trajectory.Private.API (
+module Trajectory.API (
  getStories
 ,module Trajectory.Types
 ) where

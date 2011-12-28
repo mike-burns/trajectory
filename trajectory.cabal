@@ -37,10 +37,14 @@ Build-type:          Simple
 
 -- Extra files to be distributed with the package, such as examples or
 -- a README.
--- Extra-source-files:  
+Extra-source-files:  README.md, LICENSE
 
 -- Constraint on the version of Cabal needed to build this package.
-Cabal-version:       >=1.2
+Cabal-version:       >=1.6
+
+source-repository head
+  type: git
+  location: git://github.com/mike-burns/trajectory.git
 
 
 Executable inittj
@@ -51,7 +55,7 @@ Executable inittj
   Build-depends:      base >= 4.0 && < 5.0
                      ,regexpr
                      ,aeson == 0.5.0.0
-                     ,attoparsec
+                     ,attoparsec == 0.10.1.0
                      ,bytestring
                      ,text
                      ,containers
@@ -59,7 +63,7 @@ Executable inittj
                      ,unordered-containers == 0.1.4.3
   
   -- Modules not exported by this package.
-  -- Other-modules:       
+  Other-modules:       Trajectory.Private.Config
   
   -- Extra tools (e.g. alex, hsc2hs, ...) needed to build the source.
   -- Build-tools:         
@@ -74,7 +78,7 @@ Executable lsstory
                      ,http-enumerator == 0.7.2.1
                      ,bytestring
                      ,aeson == 0.5.0.0
-                     ,attoparsec
+                     ,attoparsec == 0.10.1.0
                      ,http-types
                      ,text
                      ,containers
@@ -82,7 +86,27 @@ Executable lsstory
                      ,unordered-containers == 0.1.4.3
   
   -- Modules not exported by this package.
+  Other-modules:       Trajectory.Private.Config
+  
+  -- Extra tools (e.g. alex, hsc2hs, ...) needed to build the source.
+  -- Build-tools:         
+
+Library
+  -- Modules exported by the library.
+  Exposed-modules: Trajectory.Types, Trajectory.API
+
+  -- Packages needed in order to build this package.
+  Build-depends:  base >= 4.0 && < 5.0
+                 ,aeson == 0.5.0.0
+                 ,attoparsec == 0.10.1.0
+                 ,bytestring
+                 ,http-enumerator == 0.7.2.1
+                 ,uri
+                 ,http-types
+  
+  -- Modules not exported by this package.
   -- Other-modules:       
   
   -- Extra tools (e.g. alex, hsc2hs, ...) needed to build the source.
   -- Build-tools:         
+  

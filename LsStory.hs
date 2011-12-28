@@ -10,7 +10,7 @@ import Control.Applicative( (<*>) )
 import Data.Monoid (mconcat)
 
 import Trajectory.Private.Config (withKey)
-import Trajectory.Private.API (getStories, Story(..), Iteration(..))
+import Trajectory.API (getStories, Story(..), Iteration(..))
 
 main = do
   args <- cmdArgs lsStoryArgDefinition
