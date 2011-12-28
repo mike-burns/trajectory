@@ -21,11 +21,15 @@ Done:
     % lsstory --profile thoughtbot-support --project "Trajectory"
     % lsstory --completed
 
-To do:
-
     % lsstory --development
     % lsstory --design
     % lsstory --design --development
+
+To do:
+
+    % lsstory --all-iterations
+    % lsstory --current-iteration
+    % lsstory --iteration 2012-01-02
 
     % lsidea
     % lsmilestone

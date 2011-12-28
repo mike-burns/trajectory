@@ -72,6 +72,7 @@ buildFilters args = filters <*> [args]
           ,estimationFilter
           ,assignmentFilter
           ,stateFilter
+          ,neededFilter
           ,deletionsFilter
           ]
 
@@ -134,6 +135,13 @@ stateFilter args =
          then map fst $ filter snd $ zip allStates stateBits
          else allStates
 
+neededFilter args
+  | showDesignNeeded args && showDevelopmentNeeded args =
+    filter (\story -> storyDesignNeeded story && storyDevelopmentNeeded story)
+  | showDesignNeeded args = filter storyDesignNeeded
+  | showDevelopmentNeeded args = filter storyDevelopmentNeeded
+  | otherwise = id
+
 deletionsFilter args = filter (not . storyDeleted)
 
 data LsStoryArg = LsStoryArg {
@@ -146,6 +154,8 @@ data LsStoryArg = LsStoryArg {
   ,showUnestimated :: Bool
   ,showAssigned :: [String]
   ,showUnassigned :: Bool
+  ,showDesignNeeded :: Bool
+  ,showDevelopmentNeeded :: Bool
 
   ,showUnstarted :: Bool
   ,showStarted :: Bool
@@ -196,6 +206,14 @@ lsStoryArgDefinition = LsStoryArg {
      &= explicit
      &= name "assigned"
      &= help "Stories assigned to the named person"
+  ,showDesignNeeded = def
+     &= explicit
+     &= name "design"
+     &= help "Stories that need design"
+  ,showDevelopmentNeeded = def
+     &= explicit
+     &= name "development"
+     &= help "Stories that need development"
   ,showUnstarted = def
      &= explicit
      &= name "unstarted"
