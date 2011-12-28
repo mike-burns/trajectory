@@ -13,6 +13,7 @@ data Error =
   | UserError String -- ^ Incorrect input.
   deriving (Show, Eq)
 
+-- | A Trajectory story.
 data Story = Story {
    storyArchived :: Bool
   ,storyAssigneeId :: Maybe Int
@@ -38,6 +39,9 @@ data Story = Story {
   ,storyIdeaSubject :: Maybe String
 } deriving (Show, Eq, Typeable, Data)
 
+-- | An iteration in Trajectory. The iterationStartsOn is the most
+-- user-identifying string, though it changes with time. The @storyIterationId@
+-- is the same as the @iterationId@.
 data Iteration = Iteration {
    iterationAcceptedPoints :: Int
   ,iterationIsComplete :: Bool

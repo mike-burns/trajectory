@@ -1,5 +1,8 @@
 {-# LANGUAGE DeriveDataTypeable, OverloadedStrings #-}
 
+-- | The Trajectory API, or a subset of it at least. This mirrors the
+-- underlying implementation, which ties stories to iterations.
+
 module Trajectory.API (
  getStories
 ,module Trajectory.Types
@@ -20,6 +23,34 @@ import qualified Control.Exception as E
 import Data.Maybe (fromMaybe)
 
 import Trajectory.Types
+
+-- | Get all the incomplete stories and iterations for a given user key,
+-- account name, and project name. Since stories and iterations are tied
+-- together in the underlying API, this produces them as a pair.
+--
+-- It produces an IO of either an error or the stories/iterations pair. The
+-- error can come from the HTTP, or from non-JSON input, or from a change to
+-- the JSON.
+--
+-- > do
+-- >   possibleStories <- getStories "abcdefg" "thoughtbot" "opensource"
+-- >   case possibleStories of
+-- >     (Left error) -> putStrLn $ "got the error: " ++ show error
+-- >     (Right (stories,iterations)) ->
+-- >       putStrLn $ intercalate "\n" $
+-- >         (map formatStory stories) ++ (map formatIteration iterations)
+getStories :: String -> String -> String -> IO (Either Error ([Story], [Iteration]))
+getStories key accountName projectName = do
+  let url = buildUrl [key, "accounts", accountName, "projects", projectName, "stories.json"]
+  result <- doHttps (BS.pack "GET") url Nothing
+  return $ either (Left . HTTPConnectionError)
+                  (extractStories . parseJson . responseBody)
+                  result
+  where
+    extractStories :: (Either Error Stories) -> (Either Error ([Story],[Iteration]))
+    extractStories (Left l) = Left l
+    extractStories (Right (Stories stories iterations)) = Right (stories, iterations)
+
 
 data Stories = Stories [Story] [Iteration]
   deriving (Show, Eq, Typeable, Data)
@@ -75,18 +106,6 @@ instance FromJSON Stories where
   parseJSON (Object o) =
     Stories <$> o .: "stories" <*> o .: "iterations"
   parseJSON _          = fail "Could not build Stories"
-
-getStories :: String -> String -> String -> IO (Either Error ([Story], [Iteration]))
-getStories key accountName projectName = do
-  let url = buildUrl [key, "accounts", accountName, "projects", projectName, "stories.json"]
-  result <- doHttps (BS.pack "GET") url Nothing
-  return $ either (Left . HTTPConnectionError)
-                  (extractStories . parseJson . responseBody)
-                  result
-  where
-    extractStories :: (Either Error Stories) -> (Either Error ([Story],[Iteration]))
-    extractStories (Left l) = Left l
-    extractStories (Right (Stories stories iterations)) = Right (stories, iterations)
 
 
 buildUrl :: [String] -> String
