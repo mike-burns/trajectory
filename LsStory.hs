@@ -143,11 +143,20 @@ neededFilter args
   | showDevelopmentNeeded args = filter storyDevelopmentNeeded
   | otherwise = id
 
-iterationFilter iterations args =
-  filter ((currentIterationId ==) . storyIterationId)
+iterationFilter iterations args
+  | showAllIterations args = id
+  | showCurrentIteration args && (present $ showIteration args) =
+    filter (storyInIterations $ [currentIteration] ++ desiredIterations)
+  | present $ showIteration args = filter (storyInIterations desiredIterations)
+  | otherwise = filter (storyInIterations [currentIteration])
   where
     currentIteration = head $ filter iterationIsCurrent iterations
-    currentIterationId = iterationId currentIteration
+    present = not . null
+    desiredIterations = filter (\iteration ->
+      (iterationStartsOn iteration) `elem` (showIteration args)
+      ) iterations
+    storyInIterations its story =
+      (storyIterationId story) `elem` (map iterationId its)
 
 deletionsFilter args = filter (not . storyDeleted)
 
@@ -170,6 +179,10 @@ data LsStoryArg = LsStoryArg {
   ,showDone :: Bool
   ,showAccepted :: Bool
   ,showRejected :: Bool
+
+  ,showAllIterations :: Bool
+  ,showCurrentIteration :: Bool
+  ,showIteration :: [String]
 
   ,detailedOutput :: Bool
   ,onlyNext :: Bool
@@ -246,6 +259,19 @@ lsStoryArgDefinition = LsStoryArg {
      &= explicit
      &= name "rejected"
      &= help "Stories which have been rejected"
+  ,showAllIterations = def
+     &= explicit
+     &= name "all-iterations"
+     &= groupname "Iteration filtering"
+     &= help "Stories from all iterations"
+  ,showCurrentIteration = def
+     &= explicit
+     &= name "current-iteration"
+     &= help "Stories from the current iteration"
+  ,showIteration = def
+     &= explicit
+     &= name "iteration"
+     &= help "Stories from the named iteration"
   ,onlyNext = def
      &= explicit
      &= name "next"
