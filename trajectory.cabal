@@ -48,12 +48,15 @@ Executable inittj
   Main-is:             InitTj.hs
   
   -- Packages needed in order to build this package.
-  Build-depends:      base
+  Build-depends:      base >= 4.0 && < 5.0
                      ,regexpr
-                     ,aeson
+                     ,aeson == 0.5.0.0
+                     ,attoparsec
                      ,bytestring
                      ,text
                      ,containers
+                     ,cmdargs
+                     ,unordered-containers == 0.1.4.3
   
   -- Modules not exported by this package.
   -- Other-modules:       
@@ -61,20 +64,22 @@ Executable inittj
   -- Extra tools (e.g. alex, hsc2hs, ...) needed to build the source.
   -- Build-tools:         
   
-Executable findstory
+Executable lsstory
   -- .hs or .lhs file containing the Main module.
-  Main-is:             FindStory.hs
+  Main-is:             LsStory.hs
   
   -- Packages needed in order to build this package.
-  Build-depends:      base
+  Build-depends:      base >= 4.0 && < 5.0
                      ,uri
-                     ,http-enumerator
+                     ,http-enumerator == 0.7.2.1
                      ,bytestring
-                     ,aeson
+                     ,aeson == 0.5.0.0
                      ,attoparsec
                      ,http-types
                      ,text
                      ,containers
+                     ,cmdargs
+                     ,unordered-containers == 0.1.4.3
   
   -- Modules not exported by this package.
   -- Other-modules:       

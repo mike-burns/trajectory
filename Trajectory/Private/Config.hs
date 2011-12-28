@@ -1,34 +1,61 @@
 module Trajectory.Private.Config where
 
 import qualified Data.ByteString.Char8 as BS (readFile, ByteString)
+import qualified Data.ByteString.Lazy as LBS
 import System.Environment (getEnv)
-import qualified Data.Map as M (lookup)
+import qualified Data.HashMap.Lazy as M
 import qualified Data.Text as T (pack, unpack)
-import Data.Aeson (json, Value(..))
-import Data.Attoparsec (parse, Result(..))
+import Data.Aeson (json, Value(..), encode, toJSON)
+import Data.Attoparsec (parse, IResult(..))
+import Data.Text as T
 
+withKey :: String -> (String -> IO ()) -> IO ()
 withKey profileName doThis = do
   maybeKey <- getKey profileName
-  case maybeKey of
-    Nothing -> putStrLn $ "Unknown profile name: " ++ profileName
-    (Just key) -> doThis key
+  maybe showError doThis maybeKey
+  where showError = putStrLn $ "Unknown profile name: " ++ profileName
 
 getKey profileName = do
-  possibleJsonString <- readConfig
+  possibleConfig <- decodeConfig
+  return $ maybe Nothing
+                 (maybe Nothing (Just . extractKey) . lookupKey)
+                 possibleConfig
+  where
+    extractKey (String k) = T.unpack k
+    lookupKey = M.lookup (T.pack profileName)
+
+readConfig :: IO (Maybe BS.ByteString)
+readConfig = getConfigFileName >>= readConfigFrom
+
+readConfigFrom :: String -> IO (Maybe BS.ByteString)
+readConfigFrom configFileName =
+  (BS.readFile configFileName >>= return . Just) `catch` (const $ return Nothing)
+
+decodeConfig :: IO (Maybe (M.HashMap T.Text Value))
+decodeConfig = getConfigFileName >>= decodeConfigFrom
+
+decodeConfigFrom :: String -> IO (Maybe (M.HashMap T.Text Value))
+decodeConfigFrom configFileName = do
+  possibleJsonString <- readConfigFrom configFileName
   case possibleJsonString of
     Nothing -> return Nothing
     (Just jsonString) -> do
-      return $ maybe Nothing (Just . extractKey) maybeKey
+      return $ Just mapping
       where
-        extractKey (String k) = T.unpack k
         (Done _ config) = parse json jsonString
         (Object mapping) = config
-        maybeKey = M.lookup (T.pack profileName) mapping
 
-readConfig :: IO (Maybe BS.ByteString)
-readConfig = do
+writeKey :: String -> String -> IO ()
+writeKey profileName key = do
   configFileName <- getConfigFileName
-  (BS.readFile configFileName >>= return . Just) `catch` (const $ return Nothing)
+  possiblePriorConfig <- decodeConfigFrom configFileName
+  let newConfig = maybe (M.singleton encodedProfileName encodedKey)
+                        (M.insert encodedProfileName encodedKey)
+                        possiblePriorConfig
+  LBS.writeFile configFileName $ encode $ toJSON newConfig
+  where
+    encodedProfileName = T.pack profileName
+    encodedKey = String $ T.pack key
 
 getConfigFileName = do
   getEnv "TRAJECTORY_CONFIG_FILE"

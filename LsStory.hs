@@ -10,6 +10,7 @@ import Control.Applicative( (<*>) )
 import Data.Monoid (mconcat)
 
 import Trajectory.Private.Config (withKey)
+import Trajectory.Private.API (getStories, Story(..))
 
 main = do
   args <- cmdArgs lsStoryArgDefinition
@@ -18,132 +19,6 @@ main = do
       putStrLn $ either (\error -> "Error: " ++ show error)
                         (handle args)
                         stories
-
--- TODO:
-getStories :: String -> String -> String -> IO (Either String [Story])
-getStories key accountName projectName =
-  return $ Right [story1, story2, story4, story3]
-  where
-    story1 = Story
-               False
-               (Just 33)
-               (Just "performance-starts-with-non-zero-f")
-               "2011-12-19T14:13:40-05:00"
-               False
-               False
-               False
-               116494
-               (Just 4404)
-               287071
-               0
-               100
-               "accepted"
-               "Bug"
-               "Perf. calc. for a single account should begin no earlier than the first nonzero balance"
-               "2011-12-20T22:29:50-05:00"
-               6348
-               5
-               (Just "Mike Burns")
-               "Benjamin Rahn"
-               ["unaccept"]
-               (Just "Performance Calculations")
-    story2 = Story
-               False
-               (Just 33)
-               (Just "perf-calc-for-account-group-should-begin-no-earlier-than-the-max-of-the-dates-f")
-               "2011-12-19T14:30:06-05:00"
-               False
-               False
-               False
-               116499
-               (Just 4404)
-               287071
-               0
-               200
-               "accepted"
-               "Bug"
-               "Perf. calc. for an account group should begin no earlier than the MAX of the dates of the constituent accounts' first nonzero balances."
-               "2011-12-20T22:29:50-05:00"
-               6348
-               3
-               (Just "Mike Burns")
-               "Benjamin Rahn"
-               ["unaccept"]
-               (Just "Performance Calculations")
-    story3 = Story
-               False
-               Nothing
-               Nothing
-               "2011-12-18T22:46:35-05:00"
-               False
-               False
-               False
-               116344
-               Nothing
-               290339
-               4
-               7200
-               "unstarted"
-               "Feature"
-               "Advisor can edit a manually entered asset"
-               "2011-12-20T22:29:50-05:00"
-               6348
-               1
-               Nothing
-               "Benjamin Rahn"
-               ["start"]
-               Nothing
-    story4 = Story
-               False
-               Nothing
-               Nothing
-               "2011-12-18T23:24:05-05:00"
-               False
-               False
-               False
-               116358
-               (Just 4194)
-               290339
-               0
-               7300
-               "unstarted"
-               "Milestone"
-               "Manual assets: delete & edit holdings, accounts"
-               "2011-12-20T22:29:50-05:00"
-               6348
-               0
-               Nothing
-               "Benjamin Rahn"
-               ["start"]
-               (Just "Manually-Entered Holdings")
-
-
-
-
-data Story = Story {
-   storyArchived :: Bool
-  ,storyAssigneeId :: Maybe Int
-  ,storyBranch :: Maybe String
-  ,storyCreatedAt :: String
-  ,storyDeleted :: Bool
-  ,storyDesignNeeded :: Bool
-  ,storyDevelopmentNeeded :: Bool
-  ,storyId :: Int
-  ,storyIdeaId :: Maybe Int
-  ,storyIterationId :: Int
-  ,storyPoints :: Int
-  ,storyPosition :: Int
-  ,storyState :: String
-  ,storyTaskType :: String
-  ,storyTitle :: String
-  ,storyUpdatedAt :: String
-  ,storyUserId :: Int
-  ,storyCommentsCount :: Int
-  ,storyAssigneeName :: Maybe String
-  ,storyUserName :: String
-  ,storyStateEvents :: [String]
-  ,storyIdeaSubject :: Maybe String
-} deriving (Show, Eq, Typeable, Data)
 
 handle :: LsStoryArg -> [Story] -> String
 handle args stories =

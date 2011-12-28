@@ -1,26 +1,33 @@
+{-# LANGUAGE DeriveDataTypeable #-}
 module Main where
 
+import System.Console.CmdArgs
+import Data.Data
+
 import Text.RegexPR (matchRegexPR)
-import System.Environment (getArgs)
-import Data.Maybe (isJust, fromMaybe)
+import Data.Maybe (isJust)
 import System.IO (hFlush, stdout)
 
--- this is all used for writeKey:
-import Trajectory.Private
+import Trajectory.Private.Config (writeKey)
 
 main = do
-  args <- getArgs
-  (config, specificArgs) <- getConfig args
+  args <- cmdArgs initTjArgDefinition
   key <- getKey
-  writeKey config key
+  writeKey (profileName args) key
   return ()
 
 getKey = promptWhile isBlank "API key: " 
 
-writeKey config key =
-  let configUpdater = getConfigUpdater config
-      updatedConfig = configUpdater key in
-    getConfigWriter updatedConfig
+data InitTjArg = InitTjArg {
+   profileName :: String
+} deriving (Show, Data, Typeable)
+
+initTjArgDefinition = InitTjArg {
+   profileName = "default"
+     &= explicit
+     &= name "profile"
+     &= help "The profile name to use [default]"
+} &= program "initrj"
 
 -- generally useful functions below; maybe they exist elsewhere:
 
