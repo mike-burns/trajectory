@@ -72,6 +72,7 @@ buildFilters args = filters <*> [args]
           ,estimationFilter
           ,assignmentFilter
           ,stateFilter
+          ,deletionsFilter
           ]
 
 ideaFilter args
@@ -132,6 +133,8 @@ stateFilter args =
       if or stateBits
          then map fst $ filter snd $ zip allStates stateBits
          else allStates
+
+deletionsFilter args = filter (not . storyDeleted)
 
 data LsStoryArg = LsStoryArg {
    profileName :: String
