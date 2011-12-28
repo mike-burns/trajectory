@@ -1,7 +1,7 @@
 Trajectory
 ----------
 
-Tools and a library.
+Tools and a library for [Trajectory](http://apptrajectory.com/).
 
 Installation
 ============
@@ -60,3 +60,5 @@ Copyright
 =========
 
 Copyright 2011 Mike Burns
+
+Trajectory is copyright 2011 thoughtbot
