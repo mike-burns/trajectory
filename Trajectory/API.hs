@@ -10,7 +10,7 @@ module Trajectory.API (
 
 import Data.Data
 import Data.Aeson
-import Control.Applicative ( (<$>), (<*>) )
+import Control.Applicative ( (<$>), (<*>), pure )
 
 import Data.List (intercalate)
 import Data.Attoparsec.ByteString.Lazy
@@ -21,6 +21,9 @@ import Network.HTTP.Enumerator
 import Text.URI
 import qualified Control.Exception as E
 import Data.Maybe (fromMaybe)
+import Data.Time (parseTime)
+import System.Locale (defaultTimeLocale)
+import qualified Data.Text as T (unpack)
 
 import Trajectory.Types
 
@@ -106,6 +109,13 @@ instance FromJSON Stories where
   parseJSON (Object o) =
     Stories <$> o .: "stories" <*> o .: "iterations"
   parseJSON _          = fail "Could not build Stories"
+
+instance FromJSON TimeWithZone where
+  parseJSON (String t) =
+    case parseTime defaultTimeLocale "%FT%T%Z" (T.unpack t) of
+         Just d -> pure $ TimeWithZone d
+         _      -> fail "could not parse a Rails default datetime"
+  parseJSON _          = fail "Given something besides a String to parse into a datetime"
 
 
 buildUrl :: [String] -> String

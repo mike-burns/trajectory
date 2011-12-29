@@ -129,6 +129,7 @@ Library
                  ,http-enumerator == 0.7.2.1
                  ,uri
                  ,http-types
+                 ,time
   
   -- Modules not exported by this package.
   -- Other-modules:       

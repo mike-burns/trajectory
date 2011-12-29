@@ -3,6 +3,7 @@ module Trajectory.Types where
 
 import Control.Exception (IOException)
 import Data.Data (Typeable, Data)
+import Data.Time.Clock (UTCTime(..))
 
 -- | Errors have been tagged according to their source, so you can more easily
 -- dispatch and handle them.
@@ -13,12 +14,15 @@ data Error =
   | UserError String -- ^ Incorrect input.
   deriving (Show, Eq)
 
+-- | A time type representing Rails' TimeWithZone as its default string.
+newtype TimeWithZone = TimeWithZone UTCTime deriving (Show, Eq, Typeable, Data)
+
 -- | A Trajectory story.
 data Story = Story {
    storyArchived :: Bool
   ,storyAssigneeId :: Maybe Int
   ,storyBranch :: Maybe String
-  ,storyCreatedAt :: String
+  ,storyCreatedAt :: TimeWithZone
   ,storyDeleted :: Bool
   ,storyDesignNeeded :: Bool
   ,storyDevelopmentNeeded :: Bool
@@ -30,7 +34,7 @@ data Story = Story {
   ,storyState :: String
   ,storyTaskType :: String
   ,storyTitle :: String
-  ,storyUpdatedAt :: String
+  ,storyUpdatedAt :: TimeWithZone
   ,storyUserId :: Int
   ,storyCommentsCount :: Int
   ,storyAssigneeName :: Maybe String
@@ -45,14 +49,14 @@ data Story = Story {
 data Iteration = Iteration {
    iterationAcceptedPoints :: Int
   ,iterationIsComplete :: Bool
-  ,iterationCreatedAt :: String
+  ,iterationCreatedAt :: TimeWithZone
   ,iterationEstimatedPoints :: Int
   ,iterationEstimatedVelocity :: Int
   ,iterationId :: Int
   ,iterationStartsOn :: String
   ,iterationStoriesCount :: Int
   ,iterationTeamStrength :: Int
-  ,iterationUpdatedAt :: String
+  ,iterationUpdatedAt :: TimeWithZone
   ,iterationPercentComplete :: Int
   ,iterationIsCurrent :: Bool
   ,iterationUnstartedStoriesCount :: Int
