@@ -130,6 +130,7 @@ Library
                  ,uri
                  ,http-types
                  ,time
+                 ,old-locale
   
   -- Modules not exported by this package.
   -- Other-modules:       
