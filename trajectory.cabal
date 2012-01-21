@@ -101,7 +101,7 @@ Executable lsstory
   -- Packages needed in order to build this package.
   Build-depends:      base >= 4.0 && < 5.0
                      ,uri
-                     ,http-enumerator == 0.7.2.1
+                     ,http-enumerator == 0.7.2.4
                      ,bytestring
                      ,aeson == 0.5.0.0
                      ,attoparsec == 0.10.1.0
@@ -126,10 +126,10 @@ Library
                  ,aeson == 0.5.0.0
                  ,attoparsec == 0.10.1.0
                  ,bytestring
-                 ,http-enumerator == 0.7.2.1
+                 ,http-enumerator == 0.7.2.4
                  ,uri
                  ,http-types
-                 ,time
+                 ,time == 1.4.0.1
                  ,old-locale
   
   -- Modules not exported by this package.
