@@ -4,6 +4,7 @@ module Trajectory.Types where
 import Control.Exception (IOException)
 import Data.Data (Typeable, Data)
 import Data.Time.Clock (UTCTime(..))
+import Data.Time.LocalTime ()
 
 -- | Errors have been tagged according to their source, so you can more easily
 -- dispatch and handle them.
@@ -15,7 +16,8 @@ data Error =
   deriving (Show, Eq)
 
 -- | A time type representing Rails' TimeWithZone as its default string.
-newtype TimeWithZone = TimeWithZone UTCTime deriving (Show, Eq, Typeable, Data)
+newtype TimeWithZone = TimeWithZone UTCTime
+  deriving (Show, Eq, Typeable, Data)
 
 -- | A Trajectory story.
 data Story = Story {
